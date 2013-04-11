@@ -8,15 +8,21 @@
 
 #import "Pushpush.h"
 
+static NSString * const kPushtokenKey = @"com.pushpush.pushtoken";
+
 @implementation Pushpush
-+ subscribeToPushPushWithChannelKey:(NSString*)channelKey andDeviceToken:(NSData*)deviceToken
+
++ (void)subscribeToPushPushWithChannelKey:(NSString*)channelKey andDeviceToken:(NSData*)deviceToken
 {
+    // Get existing pushtoken
+    NSString *existingPushtoken = [[NSUserDefaults standardUserDefaults] objectForKey:kPushtokenKey];
+    
     // Process channelkey
     NSArray *keyParts = [channelKey componentsSeparatedByString:@"-"];
     
     // Prepare url
     NSString *url = [NSString stringWithFormat:@"http://%@:%@@pushpush.wrep.nl/api/receiver/register.json", [keyParts objectAtIndex:0], [keyParts objectAtIndex:1]];
-
+    
     // Build request
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
     
@@ -25,17 +31,39 @@
                            stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     
     // Prepare payload
-    NSString *payload = [NSString stringWithFormat:@"devicetoken=%@", pushToken];    
+    NSMutableDictionary *payload = [[NSMutableDictionary alloc] initWithObjectsAndKeys:pushToken, @"devicetoken", nil];
+    if (existingPushtoken != nil)
+    {
+        [payload setObject:existingPushtoken forKey:@"pushtoken"];
+    }
+    
+    // Set method and body
     [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[payload dataUsingEncoding:NSUTF8StringEncoding]];
+    [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:payload
+                                                         options:NSJSONWritingPrettyPrinted
+                                                           error:nil]];
     [request setValue:@"application/json" forHTTPHeaderField:@"content-type"];
     
     NSURLResponse* response = nil;
-    [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
     
     int statusCode = [((NSHTTPURLResponse *)response) statusCode];
-    if (statusCode != 200) {
-        NSLog(@"Bad response from pushpush received: %d.", statusCode);
+    if (statusCode == 200 || statusCode == 201) {
+        NSLog(@"[Pushpush] Got positive response: %d.", statusCode);
+        
+        // Collect and parse JSON
+        NSError* error;
+        NSDictionary* jsonObject = [NSJSONSerialization JSONObjectWithData:responseData
+                                                                   options:kNilOptions
+                                                                     error:&error];
+        
+        // Access and store pushtoken
+        [[NSUserDefaults standardUserDefaults] setObject:[jsonObject objectForKey:@"pushtoken"] forKey:kPushtokenKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    else
+    {
+        NSLog(@"[Pushpush] Uhoh, got a bad response from the server: %d.", statusCode);
     }
 }
 @end
