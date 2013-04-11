@@ -9,5 +9,5 @@
 #import <Foundation/Foundation.h>
 
 @interface Pushpush : NSObject
-+ subscribeToPushPushWithChannelKey:(NSString*)channelKey andDeviceToken:(NSString*)deviceToken;
++ subscribeToPushPushWithChannelKey:(NSString*)channelKey andDeviceToken:(NSData*)deviceToken;
 @end

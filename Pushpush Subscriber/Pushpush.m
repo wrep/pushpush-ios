@@ -9,7 +9,7 @@
 #import "Pushpush.h"
 
 @implementation Pushpush
-+ subscribeToPushPushWithChannelKey:(NSString*)channelKey andDeviceToken:(NSString*)deviceToken
++ subscribeToPushPushWithChannelKey:(NSString*)channelKey andDeviceToken:(NSData*)deviceToken
 {
     // Process channelkey
     NSArray *keyParts = [channelKey componentsSeparatedByString:@"-"];
