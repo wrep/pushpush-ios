@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Pushpush"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "iOS subscriber for SDK for Pushpush."
   s.homepage     = "http://wrep.nl/"
   s.license      = 'MIT'
