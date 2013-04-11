@@ -15,7 +15,7 @@
     NSArray *keyParts = [channelKey componentsSeparatedByString:@"-"];
     
     // Prepare url
-    NSString *url = [NSString stringWithFormat:@"http://%@:%@@pushpush.loc/app_dev.php/api/receiver/register.json", [keyParts objectAtIndex:0], [keyParts objectAtIndex:1]];
+    NSString *url = [NSString stringWithFormat:@"http://%@:%@@pushpush.wrep.nl/api/receiver/register.json", [keyParts objectAtIndex:0], [keyParts objectAtIndex:1]];
 
     // Build request
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
